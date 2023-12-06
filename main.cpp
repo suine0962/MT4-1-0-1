@@ -45,6 +45,12 @@ Vector3 Normalize(const Vector3& v)
 	return v;
 }
 
+Vector3 Cross(const Vector3& v1, const Vector3& v2)
+{
+	Vector3 v = { v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x };
+
+	return v;
+};
 
 Vector3 VectorMultiply(float sclar, const Vector3& v)
 {
@@ -516,7 +522,7 @@ Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float botto
 
 }
 
-Matrix4x4 Multiply(float scalar, const Matrix4x4& m)
+Matrix4x4 ScalarMultiply(float scalar, const Matrix4x4& m)
 {
 
 	Matrix4x4 result;
@@ -554,7 +560,7 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angel)
 
 	rP.m[3][3] = 0.0f;
 
-	rP = Multiply((1.0f - std::cosf(angel)), rP);
+	rP = ScalarMultiply((1.0f - std::cosf(angel)), rP);
 
 	Matrix4x4 rC = MakeIdenttity4x4();
 
@@ -569,7 +575,7 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angel)
 	rC.m[2][2] = 0.0f;
 	rC.m[3][3] = 0.0f;
 
-	rC = Multiply((-std::sinf(angel)), rC);
+	rC = ScalarMultiply((-std::sinf(angel)), rC);
 
 	Matrix4x4 resultMatrix = Add(Add(rS, rP), rC);
 
@@ -577,6 +583,40 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angel)
 }
 
 
+Matrix4x4 DerectionToDerection(const Vector3& from, const Vector3& to)
+{
+	Vector3 normal = Normalize(Cross(from, to));
+
+	Vector3 minusTo = VectorMultiply(-1.0f, to);
+	Matrix4x4 result = MakeIdenttity4x4();
+
+	if ((from.x == minusTo.x &&
+		from.y == minusTo.y &&
+		from.z == minusTo.z)) {
+		if (from.x != 0.0f || from.y != 0.0f) {
+			normal = { from.y, -from.x, 0.0f };
+		}
+		else if (from.x != 0.0f || from.z != 0.0f) {
+			normal = { from.z, 0.0f, -from.x };
+		}
+	}
+	float cos = Dot(from, to);
+	float sin = Length(Cross(from, to));
+
+	result.m[0][0] = normal.x * normal.x * (1.0f - cos) + cos;
+	result.m[0][1] = normal.x * normal.y * (1.0f - cos) + normal.z * sin;
+	result.m[0][2] = normal.x * normal.z * (1.0f - cos) - normal.y * sin;
+
+	result.m[1][0] = normal.x * normal.y * (1.0f - cos) - normal.z * sin;
+	result.m[1][1] = normal.y * normal.y * (1.0f - cos) + cos;
+	result.m[1][2] = normal.y * normal.z * (1.0f - cos) + normal.x * sin;
+
+	result.m[2][0] = normal.x * normal.z * (1.0f - cos) + normal.y * sin;
+	result.m[2][1] = normal.y * normal.z * (1.0f - cos) - normal.x * sin;
+	result.m[2][2] = normal.z * normal.z * (1.0f - cos) + cos;
+
+	return result;
+}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -589,8 +629,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	Vector3 axis = Normalize({ 1.0f,1.0f,1.0f });
-	float angle = 0.44f;
+	Vector3 from0 = Normalize(Vector3{ 1.0f,0.7f,0.5f });
+	Vector3 to0 = from0;
+	Vector3 from1 = Normalize(Vector3{ -0.6f,0.9f,0.2f });
+	Vector3 to1 = Normalize(Vector3{ 0.4f,0.7f,-0.5f });
+	Matrix4x4 rotateMatrix0= DerectionToDerection(
+		Normalize(Vector3{ 1.0f,0.0f,0.0f }), Normalize(Vector3{ -1.0f,0.0f,0.0f }));
+
+
 
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
@@ -604,7 +650,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		Matrix4x4 rotateMatrix = MakeRotateAxisAngle(axis, angle);
+		Matrix4x4 rotateMatrix1 = DerectionToDerection(from0, to0);
+		Matrix4x4 rotateMatrix2 = DerectionToDerection(from1, to1);
 		///
 		/// ↑更新処理ここまで
 		///
@@ -612,7 +659,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		MatrixScreenPrintf(0, 0, rotateMatrix, "rotateMatrix");
+		MatrixScreenPrintf(0, 0, rotateMatrix0, "rotateMatrix0");
+		MatrixScreenPrintf(0, kRowHeight * 5, rotateMatrix1, "rotateMatrix1");
+		MatrixScreenPrintf(0, kRowHeight * 10, rotateMatrix2, "rotateMatrix2");
 		///
 		/// ↑描画処理ここまで
 		///
