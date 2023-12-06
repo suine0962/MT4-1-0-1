@@ -20,30 +20,6 @@ struct Quaternion {
 	float w;
 };
 
-Quaternion Multiply(const Quaternion& lns, const Quaternion& rhs)
-{
-	Quaternion q;
-
-	q.w = lns.w * rhs.w - lns.x * rhs.x -
-		lns.y * rhs.y - lns.z * rhs.z;
-
-	q.x = lns.y * rhs.z - lns.z * rhs.y +
-		rhs.w * lns.x + lns.w * rhs.x;
-
-	q.y = lns.z * rhs.x - lns.x * rhs.z +
-		rhs.w * lns.y + lns.w * rhs.y;
-
-	q.z = lns.x * rhs.y - lns.y * rhs.x +
-		rhs.w * lns.z + lns.w * rhs.z;
-
-	return q;
-
-}
-Quaternion IdentityQuaternion();
-Quaternion Conjugate(const Quaternion& quaternion);
-float Norm(const Quaternion& quaternion);
-Quaternion Normalize(const Quaternion& quaternion);
-Quaternion Inverse(const Quaternion& quaternion);
 
 
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
@@ -658,7 +634,103 @@ Matrix4x4 DerectionToDerection(const Vector3& from, const Vector3& to)
 
 	return Result;
 }
+Quaternion operator*(const Quaternion& a, const float b) {
+	return Quaternion{ .x = a.x * b,.y = a.y * b,.z = a.z * b,.w = a.w * b, };
+}
 
+Quaternion operator*(const float a,const Quaternion& b) {
+	return b * a;
+}
+
+
+Quaternion operator*(const Quaternion& lns, const Quaternion& rhs)
+{
+	Quaternion q;
+
+	q.w = lns.w * rhs.w - lns.x * rhs.x -
+		lns.y * rhs.y - lns.z * rhs.z;
+
+	q.x = lns.y * rhs.z - lns.z * rhs.y +
+		rhs.w * lns.x + lns.w * rhs.x;
+
+	q.y = lns.z * rhs.x - lns.x * rhs.z +
+		rhs.w * lns.y + lns.w * rhs.y;
+
+	q.z = lns.x * rhs.y - lns.y * rhs.x +
+		rhs.w * lns.z + lns.w * rhs.z;
+
+	return q;
+
+}
+
+Quaternion IdentityQuaternion()
+{
+	Quaternion identity;
+
+	identity.w = 1.0f;
+	identity.x = 0.0f;
+	identity.y = 0.0f;
+	identity.z = 0.0f;
+
+	return identity;
+}
+
+
+Quaternion Conjugate(const Quaternion& quaternion)
+{
+	Quaternion conjugate;
+
+	conjugate.w = quaternion.w;
+	conjugate.x = -quaternion.x;
+	conjugate.y = -quaternion.y;
+	conjugate.z = -quaternion.z;
+
+	return conjugate;
+
+}
+
+float Norm(const Quaternion& quaternion)
+{
+	return sqrt(quaternion.w * quaternion.w
+		+ quaternion.x * quaternion.x
+		+ quaternion.y * quaternion.y
+		+ quaternion.z * quaternion.z);
+}
+
+
+Quaternion NormalizeQuaternion(const Quaternion& quaternion)
+{
+	float norm = Norm(quaternion);
+
+	if (norm != 0.0)
+	{
+		quaternion.w / norm;
+		quaternion.x / norm;
+		quaternion.y / norm;
+		quaternion.z / norm;
+	}
+
+	return quaternion;
+}
+
+
+
+
+Quaternion InverseQuaternion(const Quaternion& quaternion)
+{
+	float normSquared = Norm(quaternion) * Norm(quaternion);
+
+	// ノルムの2乗が0でない場合のみ逆元を計算
+	if (normSquared != 0.0)
+	{
+		float reciprocalNormSquared = 1.0 /(float)normSquared;
+
+		return  Conjugate(quaternion) * reciprocalNormSquared;
+	}
+
+	return quaternion;
+
+}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -670,15 +742,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
 
-	Vector3 from0 = Normalize(Vector3{ 1.0f,0.7f,0.5f });
-	Vector3 to0 = {-from0.x,-from0.y,-from0.z };
-	Vector3 from1 = Normalize(Vector3{ -0.6f,0.9f,0.2f });
-	Vector3 to1 = Normalize(Vector3{ 0.4f,0.7f,-0.5f });
-	Matrix4x4 rotateMatrix0= DerectionToDerection(
-		Normalize(Vector3{ 1.0f,0.0f,0.0f }), Normalize(Vector3{ -1.0f,0.0f,0.0f }));
-
-
-
+	Quaternion q1 = { 2.0f,3.0f,4.0f,1.0f };
+	Quaternion q2 = { 1.0f,3.0f,5.0f,2.0f };
+	Quaternion identity = IdentityQuaternion();
+	Quaternion conj = Conjugate(q1);
+	Quaternion inv = InverseQuaternion(q1);
+	Quaternion normal = NormalizeQuaternion(q1);
+	Quaternion mul1= q1* q2;
+	Quaternion mul2 = q2 * q1;
+	float norm = Norm(q1);
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -691,18 +763,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		Matrix4x4 rotateMatrix1 = DerectionToDerection(from0, to0);
-		Matrix4x4 rotateMatrix2 = DerectionToDerection(from1, to1);
 		///
 		/// ↑更新処理ここまで
 		///
 
 		///
 		/// ↓描画処理ここから
-		///
-		MatrixScreenPrintf(0, 0, rotateMatrix0, "rotateMatrix0");
-		MatrixScreenPrintf(0, kRowHeight * 5, rotateMatrix1, "rotateMatrix1");
-		MatrixScreenPrintf(0, kRowHeight * 10, rotateMatrix2, "rotateMatrix2");
+		Novice::ScreenPrintf(0, 0, "Multiply: w=%.2f, x=%.2f, y=%.2f, z=%.2f\n", mul1.x, mul1.y, mul1.z, mul1.w);
+		Novice::ScreenPrintf(0, 50, "Multiply: w=%.2f, x=%.2f, y=%.2f, z=%.2f\n", mul2.x, mul2.y, mul2.z, mul2.w);
+
 		///
 		/// ↑描画処理ここまで
 		///
