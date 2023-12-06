@@ -13,6 +13,39 @@ static const int kWindowHeght = 720;
 
 const char kWindowTitle[] = "学籍番号";
 
+struct Quaternion {
+	float x;
+	float y;
+	float z;
+	float w;
+};
+
+Quaternion Multiply(const Quaternion& lns, const Quaternion& rhs)
+{
+	Quaternion q;
+
+	q.w = lns.w * rhs.w - lns.x * rhs.x -
+		lns.y * rhs.y - lns.z * rhs.z;
+
+	q.x = lns.y * rhs.z - lns.z * rhs.y +
+		rhs.w * lns.x + lns.w * rhs.x;
+
+	q.y = lns.z * rhs.x - lns.x * rhs.z +
+		rhs.w * lns.y + lns.w * rhs.y;
+
+	q.z = lns.x * rhs.y - lns.y * rhs.x +
+		rhs.w * lns.z + lns.w * rhs.z;
+
+	return q;
+
+}
+Quaternion IdentityQuaternion();
+Quaternion Conjugate(const Quaternion& quaternion);
+float Norm(const Quaternion& quaternion);
+Quaternion Normalize(const Quaternion& quaternion);
+Quaternion Inverse(const Quaternion& quaternion);
+
+
 Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 
 	Matrix4x4 result;
