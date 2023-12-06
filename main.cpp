@@ -25,6 +25,15 @@ Matrix4x4 Add(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return result;
 }
 
+Vector3 Subtract(const Vector3& v1, const Vector3& v2)
+{
+	Vector3 result;
+	result.x = v1.x - v2.x;
+	result.y = v1.y - v2.y;
+	result.z = v1.z - v2.z;
+	return result;
+}
+
 float Dot(const Vector3& v1, const Vector3& v2)
 {
 	return  v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
@@ -585,37 +594,36 @@ Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angel)
 
 Matrix4x4 DerectionToDerection(const Vector3& from, const Vector3& to)
 {
-	Vector3 normal = Normalize(Cross(from, to));
+	Vector3 Normal = Normalize(Cross(from, to));
+	Vector3 MathTo = VectorMultiply(-1.0f, to);
+	Matrix4x4 Result = MakeIdenttity4x4();
 
-	Vector3 minusTo = VectorMultiply(-1.0f, to);
-	Matrix4x4 result = MakeIdenttity4x4();
-
-	if ((from.x == minusTo.x &&
-		from.y == minusTo.y &&
-		from.z == minusTo.z)) {
+	if ((from.x == MathTo.x &&
+		from.y == MathTo.y &&
+		from.z == MathTo.z)) {
 		if (from.x != 0.0f || from.y != 0.0f) {
-			normal = { from.y, -from.x, 0.0f };
+			Normal = { from.y, -from.x, 0.0f };
 		}
 		else if (from.x != 0.0f || from.z != 0.0f) {
-			normal = { from.z, 0.0f, -from.x };
+			Normal = { from.z, 0.0f, -from.x };
 		}
 	}
 	float cos = Dot(from, to);
 	float sin = Length(Cross(from, to));
 
-	result.m[0][0] = normal.x * normal.x * (1.0f - cos) + cos;
-	result.m[0][1] = normal.x * normal.y * (1.0f - cos) + normal.z * sin;
-	result.m[0][2] = normal.x * normal.z * (1.0f - cos) - normal.y * sin;
+	Result.m[0][0] = Normal.x * Normal.x * (1.0f - cos) + cos;
+	Result.m[0][1] = Normal.x * Normal.y * (1.0f - cos) + Normal.z * sin;
+	Result.m[0][2] = Normal.x * Normal.z * (1.0f - cos) - Normal.y * sin;
 
-	result.m[1][0] = normal.x * normal.y * (1.0f - cos) - normal.z * sin;
-	result.m[1][1] = normal.y * normal.y * (1.0f - cos) + cos;
-	result.m[1][2] = normal.y * normal.z * (1.0f - cos) + normal.x * sin;
+	Result.m[1][0] = Normal.x * Normal.y * (1.0f - cos) - Normal.z * sin;
+	Result.m[1][1] = Normal.y * Normal.y * (1.0f - cos) + cos;
+	Result.m[1][2] = Normal.y * Normal.z * (1.0f - cos) + Normal.x * sin;
 
-	result.m[2][0] = normal.x * normal.z * (1.0f - cos) + normal.y * sin;
-	result.m[2][1] = normal.y * normal.z * (1.0f - cos) - normal.x * sin;
-	result.m[2][2] = normal.z * normal.z * (1.0f - cos) + cos;
+	Result.m[2][0] = Normal.x * Normal.z * (1.0f - cos) + Normal.y * sin;
+	Result.m[2][1] = Normal.y * Normal.z * (1.0f - cos) - Normal.x * sin;
+	Result.m[2][2] = Normal.z * Normal.z * (1.0f - cos) + cos;
 
-	return result;
+	return Result;
 }
 
 
@@ -630,7 +638,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	char preKeys[256] = { 0 };
 
 	Vector3 from0 = Normalize(Vector3{ 1.0f,0.7f,0.5f });
-	Vector3 to0 = from0;
+	Vector3 to0 = {-from0.x,-from0.y,-from0.z };
 	Vector3 from1 = Normalize(Vector3{ -0.6f,0.9f,0.2f });
 	Vector3 to1 = Normalize(Vector3{ 0.4f,0.7f,-0.5f });
 	Matrix4x4 rotateMatrix0= DerectionToDerection(
