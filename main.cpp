@@ -723,7 +723,7 @@ Quaternion InverseQuaternion(const Quaternion& quaternion)
 	// ノルムの2乗が0でない場合のみ逆元を計算
 	if (normSquared != 0.0)
 	{
-		float reciprocalNormSquared = 1.0 /(float)normSquared;
+		float reciprocalNormSquared = 1.0 /normSquared;
 
 		return  Conjugate(quaternion) * reciprocalNormSquared;
 	}
