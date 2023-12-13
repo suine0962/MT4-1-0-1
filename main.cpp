@@ -678,14 +678,16 @@ Quaternion IdentityQuaternion()
 
 Quaternion Conjugate(const Quaternion& quaternion)
 {
-	Quaternion conjugate;
+	Quaternion result =
+	
+	{
+		-quaternion.x,
+		-quaternion.y,
+		-quaternion.z,
+		quaternion.w
+	};
 
-	conjugate.w = quaternion.w;
-	conjugate.x = -quaternion.x;
-	conjugate.y = -quaternion.y;
-	conjugate.z = -quaternion.z;
-
-	return conjugate;
+	return result;
 
 }
 
@@ -700,17 +702,45 @@ float Norm(const Quaternion& quaternion)
 
 Quaternion NormalizeQuaternion(const Quaternion& quaternion)
 {
+	Quaternion result = {};
+
 	float norm = Norm(quaternion);
 
-	if (norm != 0.0)
+	if (quaternion.x != 0.0f)
 	{
-		quaternion.w / norm;
-		quaternion.x / norm;
-		quaternion.y / norm;
-		quaternion.z / norm;
+		result.x = quaternion.x / norm;
+	}else
+	{
+		result.x = 0.0f;
 	}
 
-	return quaternion;
+	if (quaternion.y != 0.0f)
+	{
+		result.y = quaternion.y / norm;
+	}else
+	{
+		result.y = 0.0f;
+	}
+	
+
+
+	if (quaternion.z != 0.0f)
+	{
+		result.z = quaternion.z / norm;
+	}else
+	{
+		result.z = 0.0f;
+	}
+
+	if (quaternion.w != 0.0f)
+	{
+		result.w = quaternion.w / norm;
+	}else
+	{
+		result.w = 0.0f;
+	}
+
+	return result;
 }
 
 
@@ -718,18 +748,20 @@ Quaternion NormalizeQuaternion(const Quaternion& quaternion)
 
 Quaternion InverseQuaternion(const Quaternion& quaternion)
 {
-	float normSquared = Norm(quaternion) * Norm(quaternion);
+	
+	Quaternion result = {};
+	Quaternion conjugate = Conjugate(quaternion);
 
-	// ノルムの2乗が0でない場合のみ逆元を計算
-	if (normSquared != 0.0)
-	{
-		float reciprocalNormSquared = 1.0 /normSquared;
+	float norm = Norm(quaternion);
 
-		return  Conjugate(quaternion) * reciprocalNormSquared;
+	if (norm != 0.0f) {
+		result.x = conjugate.x / (norm * norm);
+		result.y = conjugate.y / (norm * norm);
+		result.z = conjugate.z / (norm * norm);
+		result.w = conjugate.w / (norm * norm);
 	}
 
-	return quaternion;
-
+	return result;
 }
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -751,6 +783,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Quaternion mul1= q1* q2;
 	Quaternion mul2 = q2 * q1;
 	float norm = Norm(q1);
+
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -769,9 +802,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		///
 		/// ↓描画処理ここから
-		Novice::ScreenPrintf(0, 0, "Multiply: w=%.2f, x=%.2f, y=%.2f, z=%.2f\n", mul1.x, mul1.y, mul1.z, mul1.w);
-		Novice::ScreenPrintf(0, 50, "Multiply: w=%.2f, x=%.2f, y=%.2f, z=%.2f\n", mul2.x, mul2.y, mul2.z, mul2.w);
-
+		Novice::ScreenPrintf(20, 20, "%.2f,%.2f,%.2f,%.2f :Identity", identity.x, identity.y, identity.z, identity.w);
+		Novice::ScreenPrintf(20, 40, "%.2f,%.2f,%.2f,%.2f : Conjugate", conj.x, conj.y, conj.z, conj.w);
+		Novice::ScreenPrintf(20, 60, "%.2f,%.2f,%.2f,%.2f : Inverse", inv.x, inv.y, inv.z, inv.w);
+		Novice::ScreenPrintf(20, 80, "%.2f,%.2f,%.2f,%.2f : Normalize", normal.x, normal.y, normal.z, normal.w);
+		Novice::ScreenPrintf(20, 100, "%.2f,%.2f,%.2f,%.2f : Multiply(q1, q2)", mul1.x, mul1.y, mul1.z, mul1.w);
+		Novice::ScreenPrintf(20, 120, "%.2f,%.2f,%.2f,%.2f : Multiply(q2, q1)", mul2.x, mul2.y, mul2.z, mul2.w);
+		Novice::ScreenPrintf(20, 140, "%.2f : Norm", norm);
 		///
 		/// ↑描画処理ここまで
 		///
