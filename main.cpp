@@ -634,6 +634,7 @@ Matrix4x4 DerectionToDerection(const Vector3& from, const Vector3& to)
 
 	return Result;
 }
+
 Quaternion operator*(const Quaternion& a, const float b) {
 	return Quaternion{ .x = a.x * b,.y = a.y * b,.z = a.z * b,.w = a.w * b, };
 }
@@ -642,7 +643,7 @@ Quaternion operator*(const float a,const Quaternion& b) {
 	return b * a;
 }
 
-
+//Multiply
 Quaternion operator*(const Quaternion& lns, const Quaternion& rhs)
 {
 	Quaternion q;
