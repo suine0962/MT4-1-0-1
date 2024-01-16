@@ -60,6 +60,17 @@ Vector3 Subtract(const Vector3& v1, const Vector3& v2)
 	return result;
 }
 
+
+Quaternion QuaternionSubtract(const Quaternion& q1, const Quaternion& q2)
+{
+	Quaternion result;
+	result.x = q1.x - q2.x;
+	result.y = q1.y - q2.y;
+	result.z = q1.z - q2.z;
+	result.w = q1.w - q2.w;
+	return result;
+}
+
 float Dot(const Vector3& v1, const Vector3& v2)
 {
 	return  v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
@@ -717,12 +728,25 @@ Quaternion IdentityQuaternion()
 Quaternion Conjugate(const Quaternion& quaternion)
 {
 	Quaternion result =
-	
 	{
 		-quaternion.x,
 		-quaternion.y,
 		-quaternion.z,
 		quaternion.w
+	};
+
+	return result;
+
+}
+
+Quaternion SlerpConjugate(const Quaternion& quaternion)
+{
+	Quaternion result =
+	{
+		quaternion.x,
+		-quaternion.y,
+		quaternion.z,
+		-quaternion.w
 	};
 
 	return result;
@@ -869,6 +893,31 @@ Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion)
 
 	return result;
 }
+
+//球面線形保管
+
+Quaternion Slerp(const Quaternion& q0, const Quaternion& q1,float t) 
+{
+
+	float dot = (q0.x * q1.x) + (q0.y * q1.y) + (q0.z * q1.z) + (q0.w * q1.w);//内積
+	float theta = std::acos(dot);//θ
+
+	if (dot < 0)
+	{
+		SlerpConjugate(q0);
+
+		dot = -dot;
+	}
+
+
+	float scale0 = std::sin(theta) / std::sin((1 - t) * theta);
+	float scale1 = std::sin(theta) / std::sin(t * theta);
+
+	return  scale0 * q0 + scale1 * q1;
+
+}
+
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
