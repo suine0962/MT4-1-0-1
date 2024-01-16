@@ -1010,11 +1010,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		/// 
 		/// 
-		Novice::ScreenPrintf(0, 50, "%-4f: interpolate0", interpolate0);
-		Novice::ScreenPrintf(0, 100, "%-2f: interpolate1", interpolate1);
-		Novice::ScreenPrintf(0, 150, "%-2f: interpolate2", interpolate2);
-		Novice::ScreenPrintf(0, 200, "%-2f: interpolate3", interpolate3);
-		Novice::ScreenPrintf(0, 250, "%-2f: interpolate4", interpolate4);
+		Novice::ScreenPrintf(0, 50, " % .2f, % .2f, % .2f, % .2f interpolate0", interpolate0);
+		Novice::ScreenPrintf(0, 100, " % .2f, % .2f, % .2f, % .2f: interpolate1", interpolate1);
+		Novice::ScreenPrintf(0, 150, " % .2f, % .2f, % .2f, % .2f: interpolate2", interpolate2);
+		Novice::ScreenPrintf(0, 200, " % .2f, % .2f, % .2f, % .2f: interpolate3", interpolate3);
+		Novice::ScreenPrintf(0, 250, " % .2f, % .2f, % .2f, % .2f: interpolate4", interpolate4);
 
 
 
