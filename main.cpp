@@ -896,25 +896,29 @@ Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion)
 }
 
 
+void invertQuaternion(Quaternion* q) {
+	q->w = -q->w;
+	q->x = -q->x;
+	q->y = -q->y;
+	q->z = -q->z;
+}
+
 
 //球面線形保管
 
-Quaternion Slerp(const Quaternion& q0, const Quaternion& q1,float t) 
+Quaternion Slerp(Quaternion& q0, Quaternion& q1,float t) 
 {
-	Quaternion result;
+	Quaternion result{};
  
 	float dot =( q0.w * q1.w) + (q0.x * q1.x) + (q0.y * q1.y) +( q0.z * q1.z);
 
-
-
 	// クォータニオンが逆向きの場合、符号を反転
-	if (dot < 0.0) 
-	{
-		-q1.w;
-		-q1.x;
-		-q1.y;
-		-q1.z;
+	if (dot < 0.0) {
+
+		invertQuaternion(&q1);
+
 		dot = -dot;
+
 	}
 
 	// 線形補間
@@ -934,6 +938,23 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1,float t)
 	return result;
 }
 
+typedef struct {
+	double x, y;
+} Coordinates;
+
+void QuaternionScreenPrintf(int x, int y, const Quaternion& q, const char* label)
+{
+	for (int row = 0; row < 4; ++row)
+	{
+		for (int column = 0; column < 4; ++column)
+		{
+			Novice::ScreenPrintf(
+				x + column * kColumnWidth, y + row * kRowHeight + 20, "%6.02f",q);
+		}
+	}
+	Novice::ScreenPrintf(x, y, "%s", label);
+}
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -944,6 +965,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
+
+	Coordinates coords0 = { 10.0, 20.0 };
 
 	Quaternion rotation0 = MakeRotateAxisAngleQuaternion(
 		{ 0.71f,0.71f,0.0f }, 0.3f);
@@ -966,7 +989,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Quaternion interpolate4 =
 		Slerp(rotation0, rotation1, 1.0f);
 
-
+	
 	// ウィンドウの×ボタンが押されるまでループ
 	while (Novice::ProcessMessage() == 0) {
 		// フレームの開始
@@ -987,12 +1010,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		/// 
 		/// 
-		Novice::ScreenPrintf(20, 40, "%.2f,%.2f,%.2f,%.2f :interpolate0", interpolate0);
-		Novice::ScreenPrintf(20, 60, "%.2f,%.2f,%.2f,%.2f :interpolate1", interpolate1);
-		Novice::ScreenPrintf(20, 80, "%.2f,%.2f,%.2f,%.2f :interpolate2", interpolate2);
-		Novice::ScreenPrintf(20, 100, "%.2f,%.2f,%.2f,%.2f :interpolate3", interpolate3);
-		Novice::ScreenPrintf(20, 120, "%.2f,%.2f,%.2f,%.2f :interpolate4", interpolate4);
+		Novice::ScreenPrintf(0, 50, "%-4f: interpolate0", interpolate0);
+		Novice::ScreenPrintf(0, 100, "%-2f: interpolate1", interpolate1);
+		Novice::ScreenPrintf(0, 150, "%-2f: interpolate2", interpolate2);
+		Novice::ScreenPrintf(0, 200, "%-2f: interpolate3", interpolate3);
+		Novice::ScreenPrintf(0, 250, "%-2f: interpolate4", interpolate4);
 
+
+
+		Novice::ScreenPrintf(50, 50, "%2f", interpolate0);
 		///
 		/// ↑描画処理ここまで
 		///
