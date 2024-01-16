@@ -1018,7 +1018,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Novice::ScreenPrintf(50, 50, "%2f", interpolate0);
 		///
 		/// ↑描画処理ここまで
 		///
