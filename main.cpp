@@ -814,6 +814,16 @@ void VectorScreenPrintf(int x, int y, Vector3& vector, const char* label)
 	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%s", label);
 }
 
+void QuaternionScreenPrintf(int x, int y, Quaternion& Q, const char* label)
+{
+
+	Novice::ScreenPrintf(x, y, "%0.2f", Q.x);
+	Novice::ScreenPrintf(x + kColumnWidth, y, "%0.2f", Q.y);
+	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%0.2f", Q.z);
+	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%0.2f", Q.w);
+	Novice::ScreenPrintf(x + kColumnWidth * 4, y, "%s", label);
+
+}
 
 Quaternion InverseQuaternion(const Quaternion& quaternion)
 {
@@ -927,10 +937,10 @@ Quaternion Slerp(Quaternion& q0, Quaternion& q1,float t)
 	float weight1 = std::sinf((1.0f - t) * theta) / sinTheta;
 	float weight2 = std::sinf(t * theta) / sinTheta;
 
-	result.w = weight1 * q0.w + weight2 * q1.w;
-	result.x = weight1 * q0.x + weight2 * q1.x;
-	result.y = weight1 * q0.y + weight2 * q1.y;
-	result.z = weight1 * q0.z + weight2 * q1.z;
+	result.w = (weight1 * q0.w) + (weight2 * q1.w);
+	result.x = (weight1 * q0.x) + (weight2 * q1.x);
+	result.y = (weight1 * q0.y) + (weight2 * q1.y);
+	result.z = (weight1 * q0.z) + (weight2 * q1.z);
 
 	// 補間結果の正規化
 	NormalizeQuaternion(result);
@@ -938,22 +948,6 @@ Quaternion Slerp(Quaternion& q0, Quaternion& q1,float t)
 	return result;
 }
 
-typedef struct {
-	double x, y;
-} Coordinates;
-
-void QuaternionScreenPrintf(int x, int y, const Quaternion& q, const char* label)
-{
-	for (int row = 0; row < 4; ++row)
-	{
-		for (int column = 0; column < 4; ++column)
-		{
-			Novice::ScreenPrintf(
-				x + column * kColumnWidth, y + row * kRowHeight + 20, "%6.02f",q);
-		}
-	}
-	Novice::ScreenPrintf(x, y, "%s", label);
-}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -965,8 +959,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
-
-	Coordinates coords0 = { 10.0, 20.0 };
 
 	Quaternion rotation0 = MakeRotateAxisAngleQuaternion(
 		{ 0.71f,0.71f,0.0f }, 0.3f);
@@ -1010,14 +1002,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		/// 
 		/// 
-		Novice::ScreenPrintf(0, 50, " % .2f, % .2f, % .2f, % .2f interpolate0", interpolate0);
-		Novice::ScreenPrintf(0, 100, " % .2f, % .2f, % .2f, % .2f: interpolate1", interpolate1);
-		Novice::ScreenPrintf(0, 150, " % .2f, % .2f, % .2f, % .2f: interpolate2", interpolate2);
-		Novice::ScreenPrintf(0, 200, " % .2f, % .2f, % .2f, % .2f: interpolate3", interpolate3);
-		Novice::ScreenPrintf(0, 250, " % .2f, % .2f, % .2f, % .2f: interpolate4", interpolate4);
-
-
-
+		/// 
+		QuaternionScreenPrintf(0, 50, interpolate0, "interpolate0");
+		QuaternionScreenPrintf(0, 100, interpolate1, "interpolate0");
+		QuaternionScreenPrintf(0, 150, interpolate2, "interpolate0");
+		QuaternionScreenPrintf(0, 200, interpolate3, "interpolate0");
+		QuaternionScreenPrintf(0, 250, interpolate4, "interpolate0");
 		///
 		/// ↑描画処理ここまで
 		///
