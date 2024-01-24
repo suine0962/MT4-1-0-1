@@ -1004,10 +1004,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// 
 		/// 
 		QuaternionScreenPrintf(0, 50, interpolate0, "interpolate0");
-		QuaternionScreenPrintf(0, 100, interpolate1, "interpolate0");
-		QuaternionScreenPrintf(0, 150, interpolate2, "interpolate0");
-		QuaternionScreenPrintf(0, 200, interpolate3, "interpolate0");
-		QuaternionScreenPrintf(0, 250, interpolate4, "interpolate0");
+		QuaternionScreenPrintf(0, 100, interpolate1, "interpolate1");
+		QuaternionScreenPrintf(0, 150, interpolate2, "interpolate2");
+		QuaternionScreenPrintf(0, 200, interpolate3, "interpolate3");
+		QuaternionScreenPrintf(0, 250, interpolate4, "interpolate4");
 		///
 		/// ↑描画処理ここまで
 		///
