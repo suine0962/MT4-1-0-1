@@ -869,6 +869,17 @@ Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion)
 
 	return result;
 }
+void QuaternionScreenPrintf(int x, int y, Quaternion& Q, const char* label)
+{
+
+	Novice::ScreenPrintf(x, y, "%0.2f", Q.x);
+	Novice::ScreenPrintf(x + kColumnWidth, y, "%0.2f", Q.y);
+	Novice::ScreenPrintf(x + kColumnWidth * 2, y, "%0.2f", Q.z);
+	Novice::ScreenPrintf(x + kColumnWidth * 3, y, "%0.2f", Q.w);
+	Novice::ScreenPrintf(x + kColumnWidth * 4, y, "%s", label);
+
+}
+
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
@@ -906,7 +917,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		/// 
 		/// 
-		Novice::ScreenPrintf(20, 0, "%.2f,%.2f,%.2f,%.2f :rotation", rotation);
+		QuaternionScreenPrintf(20, 0, rotation, "rotatetion");
 		MatrixScreenPrintf(0, kRowHeight * 1, rotateMatrix, "rotateMatrix");
 		VectorScreenPrintf(0, kRowHeight * 6, rotateByQuaternion, "rotateByQuaternion");
 		VectorScreenPrintf(0, kRowHeight * 7, rotateByMatrix, "rotateByMatrix");
