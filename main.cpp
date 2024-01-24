@@ -840,7 +840,7 @@ Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion)
 }
 
 //Quaternionから回転行列を求める
-Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion)
+Matrix4x4 MakeQRotateMatrix(const Quaternion& quaternion)
 {
 	Matrix4x4 result;
 
@@ -893,8 +893,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Quaternion rotation = MakeRotateAxisAngleQuaternion(
 		Normalize(Vector3{ 1.0f,0.4f,-0.2f }), 0.45f);
 	Vector3 pointY = { 2.1f,-0.9f,1.3f };
-	Matrix4x4 rotateMatrix = MakeRotateMatrix(rotation);
+	Matrix4x4 rotateMatrix = MakeQRotateMatrix(rotation);
+
 	Vector3 rotateByQuaternion = RotateVector(pointY, rotation);
+
 	Vector3 rotateByMatrix = Transform(pointY, rotateMatrix);
 
 	// ウィンドウの×ボタンが押されるまでループ
